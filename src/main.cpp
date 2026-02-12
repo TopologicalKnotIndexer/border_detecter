@@ -2,6 +2,7 @@
 
 #include "DataInput/FileDataInput.h"
 #include "IntMatrix/ZeroOneMatrix.h"
+#include "BFS/BfsAlgo.h"
 
 int main(int argc, char** argv) {
 
@@ -16,7 +17,10 @@ int main(int argc, char** argv) {
     auto imx = file_data_input.loadMatrix(inp);
     auto mmx = ZeroOneMatrix(imx);
 
-    mmx.debugOutput(std::cout);
-
+    // 从左上角位置出发，遍历所有能走的空白位置
+    BfsAlgo bfs_algo;
+    auto vis_mx = bfs_algo.search(mmx, 0, 0);
+    vis_mx.debugOutput(std::cout);
+    
     return 0;
 }

@@ -5,10 +5,11 @@
 #include <iostream>
 #include <vector>
 
+#include "AbstractIntMatrix.h"
 #include "../IntMap/AbstractIntMap.h"
 #include "../IntCombine/AbstractIntCombine.h"
 
-class IntMatrix {
+class IntMatrix: public AbstractIntMatrix {
 protected:
     std::vector<std::vector<int>> matrix_data;
     int rcnt, ccnt;
@@ -32,14 +33,14 @@ public:
         }
     }
 
-    virtual int getRcnt() const {
+    virtual int getRcnt() const override {
         return rcnt;
     }
-    virtual int getCcnt() const {
+    virtual int getCcnt() const override {
         return ccnt;
     }
 
-    virtual int getPos(int i, int j) const {
+    virtual int getPos(int i, int j) const override {
         assert(0 <= i && i < rcnt && 0 <= j && j < ccnt);
         return matrix_data[i][j];
     }
@@ -71,7 +72,7 @@ public:
         return ans;
     }
 
-    virtual void debugOutput(std::ostream& out) const {
+    virtual void debugOutput(std::ostream& out) const override {
         for(int i = 0; i < rcnt; i += 1) {
             for(int j = 0; j < ccnt; j += 1) {
                 out << std::setw(4) << getPos(i, j) << " ";
