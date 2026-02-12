@@ -1,5 +1,7 @@
 #pragma once
 
+#include <set>
+
 #include "IntMatrix.h"
 #include "../IntMap/NotIntMap.h"
 
@@ -7,7 +9,7 @@ class ZeroOneMatrix: public IntMatrix {
 public:
     virtual ~ZeroOneMatrix() {}
     ZeroOneMatrix(int rcnt, int ccnt): IntMatrix(rcnt, ccnt) {}
-    ZeroOneMatrix(const IntMatrix& mat): IntMatrix(mat.getRcnt(), mat.getCcnt()) {
+    ZeroOneMatrix(const AbstractIntMatrix& mat): IntMatrix(mat.getRcnt(), mat.getCcnt()) {
         for(int i = 0; i < rcnt; i += 1) {
             for(int j = 0; j < ccnt; j += 1) {
                 setPos(i, j, mat.getPos(i, j) != 0);
@@ -27,5 +29,18 @@ public:
     // 对所有位置的值域取反
     virtual void notAll() {
         mapAll(NotIntMap());
+    }
+
+    // 使用当前的 ZeroOneMatrix 
+    virtual std::set<int> select(const AbstractIntMatrix& mat) const {
+        std::set<int> ans;
+        for(int i = 0; i < getRcnt(); i += 1) {
+            for(int j = 0; j < getCcnt(); j += 1) {
+                if(getPos(i, j)) {
+                    ans.insert(mat.getPos(i, j));
+                }
+            }
+        }
+        return ans;
     }
 };

@@ -25,8 +25,8 @@ public:
         return aim->getCcnt();
     }
 
-    virtual void debugOutput(std::ostream& out) const override {
-        aim->debugOutput(out);
+    virtual void debugOutput(std::ostream& out, int width) const override {
+        aim->debugOutput(out, width);
     }
 
     virtual int getPos(int i, int j) const override {

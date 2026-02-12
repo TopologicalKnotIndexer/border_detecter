@@ -71,13 +71,4 @@ public:
         }
         return ans;
     }
-
-    virtual void debugOutput(std::ostream& out) const override {
-        for(int i = 0; i < rcnt; i += 1) {
-            for(int j = 0; j < ccnt; j += 1) {
-                out << std::setw(4) << getPos(i, j) << " ";
-            }
-            out << std::endl;
-        }
-    }
 };
