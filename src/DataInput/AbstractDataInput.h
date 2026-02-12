@@ -6,5 +6,5 @@
 class AbstractDataInput {
 public:
     virtual ~AbstractDataInput(){}
-    virtual IntMatrix loadMatrix(std::istream& in) = 0;
+    virtual IntMatrix loadMatrix(std::istream& in) const = 0;
 };

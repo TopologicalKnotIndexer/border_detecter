@@ -5,8 +5,11 @@
 #include <iostream>
 #include <vector>
 
+#include "../IntMap/AbstractIntMap.h"
+#include "../IntCombine/AbstractIntCombine.h"
+
 class IntMatrix {
-private:
+protected:
     std::vector<std::vector<int>> matrix_data;
     int rcnt, ccnt;
 
@@ -29,23 +32,46 @@ public:
         }
     }
 
-    int getRcnt() const {
+    virtual int getRcnt() const {
         return rcnt;
     }
-    int getCcnt() const {
+    virtual int getCcnt() const {
         return ccnt;
     }
 
-    int getPos(int i, int j) const {
+    virtual int getPos(int i, int j) const {
         assert(0 <= i && i < rcnt && 0 <= j && j < ccnt);
         return matrix_data[i][j];
     }
-    void setPos(int i, int j, int v) {
+    virtual void setPos(int i, int j, int v) {
         assert(0 <= i && i < rcnt && 0 <= j && j < ccnt);
         matrix_data[i][j] = v;
     }
 
-    void debugOutput(std::ostream& out) const {
+    // 把矩阵中每一个值映射一次
+    virtual void mapAll(const AbstractIntMap& int_map_func) {
+        for(int i = 0; i < rcnt; i += 1) {
+            for(int j = 0; j < ccnt; j += 1) {
+                matrix_data[i][j] = int_map_func.mapInt(i, j, matrix_data[i][j]);
+            }
+        }
+    }
+
+    // 合并两个相同大小矩阵的值
+    virtual IntMatrix combineMatrix(const IntMatrix& rhs, const AbstractIntCombine& aci) {
+        assert(getRcnt() == rhs.getRcnt());
+        assert(getCcnt() == rhs.getCcnt());
+
+        auto ans = IntMatrix(rcnt, ccnt);
+        for(int i = 0; i < rcnt; i += 1) {
+            for(int j = 0; j < ccnt; j += 1) {
+                ans.setPos(i, j, aci.combineInt(i, j, getPos(i, j), rhs.getPos(i, j)));
+            }
+        }
+        return ans;
+    }
+
+    virtual void debugOutput(std::ostream& out) const {
         for(int i = 0; i < rcnt; i += 1) {
             for(int j = 0; j < ccnt; j += 1) {
                 out << std::setw(4) << getPos(i, j) << " ";

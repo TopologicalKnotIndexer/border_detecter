@@ -15,7 +15,7 @@ class FileDataInput: public AbstractDataInput{
 private:
 
     // 辅助函数：去除字符串首尾的空白字符（空格、制表符、换行等）
-    std::string trim(const std::string& str) {
+    std::string trim(const std::string& str) const {
         // 找到第一个非空白字符的位置
         auto start = str.find_first_not_of(" \t\n\r\f\v");
         if (start == std::string::npos) {
@@ -28,7 +28,7 @@ private:
 
     // 核心函数：统计非空行数量，并存储非空行到vector
     // 返回值：pair<非空行数量, 存储非空行的vector>
-    std::pair<int, std::vector<std::string>> count_non_empty_lines(std::istream& is) {
+    std::pair<int, std::vector<std::string>> count_non_empty_lines(std::istream& is) const {
         std::vector<std::string> non_empty_lines;
         std::string line;
         int count = 0;
@@ -57,7 +57,7 @@ private:
      * @return 非空白段的数量（int）
      * @note 空白字符包括：空格、制表符(\t)、换行(\n)、回车(\r)等，连续空白只算一个分隔
      */
-    int count_non_blank_segments(const std::string& line) {
+    int count_non_blank_segments(const std::string& line) const {
         int count = 0;          // 非空白段计数
         bool in_segment = false; // 标记是否处于非空白段中
 
@@ -82,7 +82,7 @@ private:
 
 public:
     virtual ~FileDataInput() {}
-    virtual IntMatrix loadMatrix(std::istream& in) override {
+    virtual IntMatrix loadMatrix(std::istream& in) const override {
         auto [row_cnt, vec] = count_non_empty_lines(in);
         assert(row_cnt > 0);
 

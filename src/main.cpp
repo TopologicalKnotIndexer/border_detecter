@@ -1,5 +1,7 @@
 #include <fstream>
+
 #include "DataInput/FileDataInput.h"
+#include "IntMatrix/ZeroOneMatrix.h"
 
 int main(int argc, char** argv) {
 
@@ -12,7 +14,9 @@ int main(int argc, char** argv) {
 
     auto inp = std::ifstream(std::string(argv[1]));
     auto imx = file_data_input.loadMatrix(inp);
-    imx.debugOutput(std::cout);
+    auto mmx = ZeroOneMatrix(imx);
+
+    mmx.debugOutput(std::cout);
 
     return 0;
 }
