@@ -1,9 +1,22 @@
 #include <fstream>
 
+#include "BFS/BfsAlgo.h"
 #include "DataInput/FileDataInput.h"
+#include "Graph/ConnectedComponents.h"
+#include "Graph/DiagramGraph.h"
 #include "IntMatrix/BorderMask.h"
 #include "IntMatrix/ZeroOneMatrix.h"
-#include "BFS/BfsAlgo.h"
+
+// 计算两个集合的交集
+std::set<int> intersect(std::set<int> a, std::set<int> b) {
+    std::set<int> ans;
+    for(auto item: a) {
+        if(b.find(item) != b.end()) {
+            ans.insert(item);
+        }
+    }
+    return ans;
+}
 
 int main(int argc, char** argv) {
 
@@ -31,13 +44,35 @@ int main(int argc, char** argv) {
     auto border_pos     = ZeroOneMatrix(border_pos_raw);
 
     // 在原始数据矩阵中进行筛选
+    // 筛选出所有在边界上的节点
     auto set_int = border_pos.select(imx);
-    for(auto val: set_int) {
-        if(val > 0) {
-            std::cout << val << " ";
+
+    // 计算原图中的所有联通分支
+    // all_cc 包含了所有的 connected component 对应的 std::set<int>
+    auto dg = DiagramGraph(imx);
+    auto cc_alg = ConnectedComponents(dg);
+    auto all_cc = cc_alg.getConnectedComponents();
+
+    // 检查是否每个联通分支都被覆盖过
+    bool fail = false;
+    std::set<int> failed_cc; // 记录没有被边界元素覆盖过的联通分支
+    for(auto cc: all_cc) {
+        if(intersect(cc, set_int).size() == 0) {
+            fail = true;
+            failed_cc = cc;
+            break;
         }
     }
-    std::cout << std::endl;
+
+    if(fail) {
+        std::cout << "WA" << std::endl;
+        for(auto item: failed_cc) {
+            std::cout << item << " ";
+        }
+        std::cout << std::endl;
+    }else {
+        std::cout << "AC" << std::endl;
+    }
 
     return 0;
 }
