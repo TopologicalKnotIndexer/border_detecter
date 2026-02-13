@@ -48,4 +48,7 @@ def create_all_result() -> None:
     print(f"ac_10/total_10: {ac_10}/{total_10}")
 
 if __name__ == "__main__":
+    # 保证文件夹存在
+    os.makedirs(RESULT, exist_ok=True)
+
     create_all_result()
