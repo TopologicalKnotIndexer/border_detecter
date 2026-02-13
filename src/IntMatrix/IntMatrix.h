@@ -1,5 +1,7 @@
 #pragma once
 
+#define DEBUG_INT_MATRIX (0)
+
 #include <cassert>
 #include <iomanip>
 #include <iostream>
@@ -41,6 +43,9 @@ public:
     }
 
     virtual int getPos(int i, int j) const override {
+        if(DEBUG_INT_MATRIX && !(0 <= i && i < rcnt && 0 <= j && j < ccnt)) {
+            std::cerr << "(" << i << ", " << j << ") is outside of (" << rcnt << ", " << ccnt << ")" << std::endl;
+        }
         assert(0 <= i && i < rcnt && 0 <= j && j < ccnt);
         return matrix_data[i][j];
     }

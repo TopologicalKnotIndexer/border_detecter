@@ -1,3 +1,5 @@
+#define DEBUG_MAIN (0)
+
 #include <fstream>
 
 #include "BFS/BfsAlgo.h"
@@ -34,10 +36,18 @@ int main(int argc, char** argv) {
     // 将所有非零位置设置为 1
     auto mmx = ZeroOneMatrix(imx);
 
+    if(DEBUG_MAIN) {
+        std::cerr << "Solving BFS" << std::endl;
+    }
+
     // 从左上角位置出发，遍历所有能走的空白位置
     // 1 是障碍物，0 是可通行位置
     BfsAlgo bfs_algo;
     auto vis_mx = bfs_algo.search(mmx, 0, 0);
+
+    if(DEBUG_MAIN) {
+        std::cerr << "Solving Border" << std::endl;
+    }
 
     // 检索 0 区域的边界位置
     auto border_pos_raw = BorderMask(std::make_shared<ZeroOneMatrix>(vis_mx), 0);
@@ -47,11 +57,19 @@ int main(int argc, char** argv) {
     // 筛选出所有在边界上的节点
     auto set_int = border_pos.select(imx);
 
+    if(DEBUG_MAIN) {
+        std::cerr << "Solving Connected Component" << std::endl;
+    }
+
     // 计算原图中的所有联通分支
     // all_cc 包含了所有的 connected component 对应的 std::set<int>
     auto dg = DiagramGraph(imx);
     auto cc_alg = ConnectedComponents(dg);
     auto all_cc = cc_alg.getConnectedComponents();
+
+    if(DEBUG_MAIN) {
+        std::cerr << "Checking Cover" << std::endl;
+    }
 
     // 检查是否每个联通分支都被覆盖过
     bool fail = false;
@@ -62,6 +80,10 @@ int main(int argc, char** argv) {
             failed_cc = cc;
             break;
         }
+    }
+
+    if(DEBUG_MAIN) {
+        std::cerr << "Output Answer" << std::endl;
     }
 
     if(fail) {

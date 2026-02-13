@@ -30,7 +30,7 @@ public:
     }
 
     virtual int getPos(int i, int j) const override {
-        if(!(0 <= i && i < getRcnt() && 0 <= j && j < getRcnt())) {
+        if(!(0 <= i && i < getRcnt() && 0 <= j && j < getCcnt())) {
             return border_val;
         }
         return aim -> getPos(i, j);

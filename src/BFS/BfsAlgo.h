@@ -1,5 +1,7 @@
 #pragma once
 
+#define DEBUG_BFS (0)
+
 #include <queue>
 
 #include "../IntMatrix/ZeroOneMatrix.h"
@@ -32,9 +34,18 @@ public:
 
         while(!q.empty()) {
             auto [x, y] = q.front(); q.pop();
+
+            if(DEBUG_BFS) {
+                std::cerr << "- Checking Position " << "(" << x << ", " << y << ")" << std::endl;
+            }
+
             for(int d = 0; d < 4; d += 1) {
                 int nx = x + dx[d];
                 int ny = y + dy[d];
+
+                if(DEBUG_BFS) {
+                    std::cerr << "  - Checking Position " << "(" << nx << ", " << ny << ")" << std::endl;
+                }
 
                 // 不需要访问已经访问过或者是障碍物的节点
                 // 这里必须先判断 new_graph.getPos(nx, ny) 因为 vis.getPos(nx, ny) 没有边界安全
@@ -46,6 +57,10 @@ public:
                 vis.setPos(nx, ny, 1);
                 q.push(std::make_tuple(nx, ny));
             }
+        }
+
+        if(DEBUG_BFS) {
+            std::cerr << "BFS Finished" << std::endl;
         }
 
         // 返回哪些位置能访问
