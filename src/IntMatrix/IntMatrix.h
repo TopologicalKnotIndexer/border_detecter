@@ -76,4 +76,15 @@ public:
         }
         return ans;
     }
+
+    // 获取所有元素的最大值
+    virtual int getMax() const {
+        int ans = -2147482648;
+        for(int i = 0; i < getRcnt(); i += 1) {
+            for(int j = 0; j < getCcnt(); j += 1) {
+                ans = std::max(ans, getPos(i, j));
+            }
+        }
+        return ans;
+    }
 };

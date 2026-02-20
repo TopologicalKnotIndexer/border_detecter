@@ -1,5 +1,6 @@
 #pragma once
 
+#include <algorithm>
 #include <memory>
 #include "AbstractIntMatrix.h"
 
@@ -34,5 +35,10 @@ public:
             return border_val;
         }
         return aim -> getPos(i, j);
+    }
+
+    // 获取所有元素的最大值
+    virtual int getMax() const {
+        return std::max(aim->getMax(), border_val);
     }
 };

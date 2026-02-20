@@ -1,6 +1,8 @@
 data/diagram_0/*.txt
 data/result/*.txt
+data/bad_knots.txt
 *.exe
+.vscode/*
 
 # Byte-compiled / optimized / DLL files
 __pycache__/

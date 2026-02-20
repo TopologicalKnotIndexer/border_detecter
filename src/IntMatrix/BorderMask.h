@@ -47,4 +47,9 @@ public:
         // 如果 cnt 大于零则说明当前点在边界
         return cnt > 0;
     }
+
+    // 获取所有元素的最大值
+    virtual int getMax() const {
+        return 1;
+    }
 };

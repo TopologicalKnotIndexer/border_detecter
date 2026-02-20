@@ -33,6 +33,10 @@ int main(int argc, char** argv) {
     auto inp = std::ifstream(std::string(argv[1]));
     auto imx = file_data_input.loadMatrix(inp);
 
+    // 获取整个矩阵中的最大元素
+    auto mxv = imx.getMax(); 
+    assert(mxv > 0);
+
     // 将所有非零位置设置为 1
     auto mmx = ZeroOneMatrix(imx);
 
@@ -67,34 +71,28 @@ int main(int argc, char** argv) {
     auto cc_alg = ConnectedComponents(dg);
     auto all_cc = cc_alg.getConnectedComponents();
 
+    // 找到最大编号对应的连通分量
+    auto mxv_cc = std::set<int>();
+    for(const auto& cc: all_cc) {
+        if(cc.find(mxv) != cc.end()) {
+            mxv_cc = cc;
+        }
+    }
+
     if(DEBUG_MAIN) {
         std::cerr << "Checking Cover" << std::endl;
     }
 
-    // 检查是否每个联通分支都被覆盖过
-    bool fail = false;
-    std::set<int> failed_cc; // 记录没有被边界元素覆盖过的联通分支
-    for(auto cc: all_cc) {
-        if(intersect(cc, set_int).size() == 0) {
-            fail = true;
-            failed_cc = cc;
-            break;
-        }
-    }
-
-    if(DEBUG_MAIN) {
-        std::cerr << "Output Answer" << std::endl;
-    }
-
-    if(fail) {
-        std::cout << "WA" << std::endl;
-        for(auto item: failed_cc) {
-            std::cout << item << " ";
-        }
-        std::cout << std::endl;
+    // 检查最大联通分支是否是独立在外的
+    // 如果最大联通分支是独立在外的，那么我们的算法
+    // 能够保证一个连通分支在最外侧，因此大概率说明不改变 pdcode 也可以做联通和
+    // 但是这一点需要进一步进行验证
+    // 具体做法就是对所有 link 考虑将其所有联通分支 swap 成最大编号联通分支并生成扭结
+    if(intersect(mxv_cc, set_int).size() == 0) {
+        std::cout << "WA" << std::endl; // 最大编号暴露出来了
     }else {
-        std::cout << "AC" << std::endl;
+        std::cout << "AC" << std::endl; // 最大编号没暴露出来
     }
-
+    
     return 0;
 }

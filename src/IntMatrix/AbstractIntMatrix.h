@@ -26,4 +26,7 @@ public:
             out << std::endl;
         }
     }
+
+    // 获取所有元素的最大值
+    virtual int getMax() const = 0;
 };
