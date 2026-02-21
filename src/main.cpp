@@ -37,6 +37,9 @@ int main(int argc, char** argv) {
     auto mxv = imx.getMax(); 
     assert(mxv > 0);
 
+    // 选择最后一个元素所在的联通分支（保证在最外圈）
+    int lastv = 1;
+
     // 将所有非零位置设置为 1
     auto mmx = ZeroOneMatrix(imx);
 
@@ -72,10 +75,10 @@ int main(int argc, char** argv) {
     auto all_cc = cc_alg.getConnectedComponents();
 
     // 找到最大编号对应的连通分量
-    auto mxv_cc = std::set<int>();
+    auto lastv_cc = std::set<int>();
     for(const auto& cc: all_cc) {
-        if(cc.find(mxv) != cc.end()) {
-            mxv_cc = cc;
+        if(cc.find(lastv) != cc.end()) {
+            lastv_cc = cc;
         }
     }
 
@@ -88,7 +91,7 @@ int main(int argc, char** argv) {
     // 能够保证一个连通分支在最外侧，因此大概率说明不改变 pdcode 也可以做联通和
     // 但是这一点需要进一步进行验证
     // 具体做法就是对所有 link 考虑将其所有联通分支 swap 成最大编号联通分支并生成扭结
-    if(intersect(mxv_cc, set_int).size() == 0) {
+    if(intersect(lastv_cc, set_int).size() == 0) {
         std::cout << "WA" << std::endl; // 最大编号暴露出来了
     }else {
         std::cout << "AC" << std::endl; // 最大编号没暴露出来
