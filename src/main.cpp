@@ -1,6 +1,9 @@
 #define DEBUG_MAIN (0)
 
 #include <fstream>
+#include <iostream>
+#include <set>
+#include <stdexcept>
 
 #include "BFS/BfsAlgo.h"
 #include "DataInput/FileDataInput.h"
@@ -9,93 +12,66 @@
 #include "IntMatrix/BorderMask.h"
 #include "IntMatrix/ZeroOneMatrix.h"
 
-// 计算两个集合的交集
-std::set<int> intersect(std::set<int> a, std::set<int> b) {
-    std::set<int> ans;
-    for(auto item: a) {
-        if(b.find(item) != b.end()) {
-            ans.insert(item);
+
+std::set<int> intersect(const std::set<int>& left, const std::set<int>& right) {
+    std::set<int> result;
+    for(const auto item: left) {
+        if(right.find(item) != right.end()) {
+            result.insert(item);
         }
     }
-    return ans;
+    return result;
 }
 
+
 int main(int argc, char** argv) {
-
-    // 检查函数参数是否完整
     if(argc != 2) {
-        std::cerr << "Usage: " << argv[0] << " <txt_filepath>" << std::endl;
-        return 0;
+        std::cerr << "Usage: " << argv[0] << " <matrix.txt>" << std::endl;
+        return 2;
     }
 
-    //  从文件读入数据矩阵
-    FileDataInput file_data_input;
-    auto inp = std::ifstream(std::string(argv[1]));
-    auto imx = file_data_input.loadMatrix(inp);
-
-    // 获取整个矩阵中的最大元素
-    auto mxv = imx.getMax(); 
-    assert(mxv > 0);
-
-    // 选择最后一个元素所在的联通分支（保证在最外圈）
-    int lastv = 1;
-
-    // 将所有非零位置设置为 1
-    auto mmx = ZeroOneMatrix(imx);
-
-    if(DEBUG_MAIN) {
-        std::cerr << "Solving BFS" << std::endl;
-    }
-
-    // 从左上角位置出发，遍历所有能走的空白位置
-    // 1 是障碍物，0 是可通行位置
-    BfsAlgo bfs_algo;
-    auto vis_mx = bfs_algo.search(mmx, 0, 0);
-
-    if(DEBUG_MAIN) {
-        std::cerr << "Solving Border" << std::endl;
-    }
-
-    // 检索 0 区域的边界位置
-    auto border_pos_raw = BorderMask(std::make_shared<ZeroOneMatrix>(vis_mx), 0);
-    auto border_pos     = ZeroOneMatrix(border_pos_raw);
-
-    // 在原始数据矩阵中进行筛选
-    // 筛选出所有在边界上的节点
-    auto set_int = border_pos.select(imx);
-
-    if(DEBUG_MAIN) {
-        std::cerr << "Solving Connected Component" << std::endl;
-    }
-
-    // 计算原图中的所有联通分支
-    // all_cc 包含了所有的 connected component 对应的 std::set<int>
-    auto dg = DiagramGraph(imx);
-    auto cc_alg = ConnectedComponents(dg);
-    auto all_cc = cc_alg.getConnectedComponents();
-
-    // 找到最大编号对应的连通分量
-    auto lastv_cc = std::set<int>();
-    for(const auto& cc: all_cc) {
-        if(cc.find(lastv) != cc.end()) {
-            lastv_cc = cc;
+    try {
+        std::ifstream input(argv[1]);
+        if(!input.is_open()) {
+            throw std::runtime_error("could not open input matrix");
         }
-    }
+        FileDataInput data_input;
+        const auto matrix = data_input.loadMatrix(input);
+        if(matrix.getMax() <= 0) {
+            throw std::invalid_argument("matrix must contain positive arc labels");
+        }
+        if(matrix.getPos(0, 0) != 0) {
+            throw std::invalid_argument("top-left matrix cell must be background (zero)");
+        }
 
-    if(DEBUG_MAIN) {
-        std::cerr << "Checking Cover" << std::endl;
-    }
+        const int target_label = 1;
+        const auto obstacle_mask = ZeroOneMatrix(matrix);
+        const auto visited_background = BfsAlgo().search(obstacle_mask, 0, 0);
+        const auto raw_border = BorderMask(
+            std::make_shared<ZeroOneMatrix>(visited_background), 0);
+        const auto border_mask = ZeroOneMatrix(raw_border);
+        const auto exposed_labels = border_mask.select(matrix);
 
-    // 检查最大联通分支是否是独立在外的
-    // 如果最大联通分支是独立在外的，那么我们的算法
-    // 能够保证一个连通分支在最外侧，因此大概率说明不改变 pdcode 也可以做联通和
-    // 但是这一点需要进一步进行验证
-    // 具体做法就是对所有 link 考虑将其所有联通分支 swap 成最大编号联通分支并生成扭结
-    if(intersect(lastv_cc, set_int).size() == 0) {
-        std::cout << "WA" << std::endl; // 最大编号暴露出来了
-    }else {
-        std::cout << "AC" << std::endl; // 最大编号没暴露出来
+        const auto diagram_graph = DiagramGraph(matrix);
+        auto all_components = ConnectedComponents(diagram_graph).getConnectedComponents();
+        std::set<int> target_component;
+        for(const auto& component: all_components) {
+            if(component.find(target_label) != component.end()) {
+                target_component = component;
+                break;
+            }
+        }
+        if(target_component.empty()) {
+            throw std::invalid_argument("diagram does not contain arc label 1");
+        }
+
+        // AC means the component containing label 1 touches the exterior
+        // background boundary. WA means it is enclosed by another component.
+        std::cout << (intersect(target_component, exposed_labels).empty() ? "WA" : "AC")
+                  << std::endl;
+        return 0;
+    } catch(const std::exception& error) {
+        std::cerr << "error: " << error.what() << std::endl;
+        return 1;
     }
-    
-    return 0;
 }

@@ -1,40 +1,60 @@
-# Border Detecter
+# Border Detector
 
-Detect border pixels and connected regions in integer matrices.
+Determine whether the diagram component containing arc label `1` touches the
+exterior background of a routed integer matrix.
 
-## Installation
-
-Clone the repository and compile `src/main.cpp` with a C++17 compiler.
-
-## Usage example
+## Build and run
 
 ```bash
-g++ -std=c++17 -O3 src/main.cpp -o border_detecter
-./border_detecter < input.txt
+g++ -std=c++17 -O2 src/main.cpp -o border_detecter
+./border_detecter matrix.txt
+```
+
+The program prints `AC` when the target component is exposed to the exterior
+and `WA` when it is enclosed. Invalid input is reported on standard error with
+a nonzero exit status.
+
+## Matrix format
+
+Input is a non-empty rectangular whitespace-separated integer matrix:
+
+- `0` is background;
+- positive integers are arc labels;
+- negative cells are crossings, and their four orthogonal neighbors must be
+  positive arc labels.
+
+The top-left cell must be `0`, providing an exterior-background seed. The
+diagram graph must contain arc label `1`, which selects the component being
+tested.
+
+Example with an exposed one-crossing component:
+
+```text
+0 1 0
+2 -1 2
+0 1 0
 ```
 
 ## Algorithm
 
-The program wraps the input as an integer matrix, derives a zero/one mask, and builds a graph over neighboring active cells. Breadth-first search labels connected components. Border masks then retain cells adjacent to the background or matrix boundary. The implementation uses compact matrix and adjacency abstractions so the same traversal can be reused by diagram-layout code.
-
-## Input conventions
-
-A PD code is represented as a list of four-entry crossings. Arc labels normally occur exactly twice. Public functions validate inputs and return new values rather than mutating caller-owned data unless their API explicitly says otherwise.
-
-## External software
-
-- A C++17 compiler such as GCC, Clang, or recent MSVC.
-- Python is optional and is only needed for the scripts under `data/`.
+A four-neighbor breadth-first search marks exterior zero cells. The boundary
+mask selects non-background cells adjacent to that exterior region. A separate
+union-find traversal connects opposite arc labels at every crossing. The final
+test intersects the exterior label set with the connected component containing
+label `1`.
 
 ## Development
 
-Run examples and package checks before release. Python packages require Python 3.10 or newer. Build PyPI artifacts with:
+A C++17 compiler is required. Python 3.10 or newer runs the compile-and-execute
+regression tests:
 
 ```bash
-poetry check
-poetry build
+python -m unittest discover -s tests -v
 ```
+
+This standalone C++ repository has no PyPI publication step and no nested Git
+dependency.
 
 ## License
 
-MIT. See `LICENSE`.
+MIT. See [`LICENSE`](LICENSE).

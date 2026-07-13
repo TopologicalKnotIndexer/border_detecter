@@ -12,8 +12,10 @@ public:
 
     // 给定一个起始点，返回一个 0, 1 矩阵描述哪些位置可以走到
     ZeroOneMatrix search(const ZeroOneMatrix& graph, int xpos, int ypos) const {
-        assert(0 <= xpos && xpos < graph.getRcnt());
-        assert(0 <= ypos && ypos < graph.getCcnt());
+        if(!(0 <= xpos && xpos < graph.getRcnt()) ||
+           !(0 <= ypos && ypos < graph.getCcnt())) {
+            throw std::out_of_range("BFS start lies outside the matrix");
+        }
 
         // 用一个 vis 数组记录每一个位置是否被访问过
         auto vis = ZeroOneMatrix(graph.getRcnt(), graph.getCcnt());
@@ -22,7 +24,9 @@ public:
         // 在外围填充 1
         auto new_graph = BorderWrap(1, 
             std::make_shared<ZeroOneMatrix>(graph)); // 拷贝构造一个
-        assert(graph.getPos(xpos, ypos) == 0); // 初始位置不能是障碍物
+        if(graph.getPos(xpos, ypos) != 0) {
+            throw std::invalid_argument("BFS start must be background (zero)");
+        }
 
         // BFS 队列
         std::queue<std::tuple<int, int>> q;

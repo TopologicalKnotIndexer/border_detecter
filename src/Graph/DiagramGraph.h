@@ -21,8 +21,10 @@ public:
                     int arr[4];
                     for(int d = 0; d < 4; d += 1) {
                         arr[d] = aim.getPos(i + dx[d], j + dy[d]);
-                        assert(arr[d] > 0);
-                        graph.setMaxNodeId(d);
+                        if(arr[d] <= 0) {
+                            throw std::invalid_argument(
+                                "every crossing must have four positive adjacent labels");
+                        }
                     }
                     graph.addEdge(arr[0], arr[2]); // 对边添加
                     graph.addEdge(arr[1], arr[3]);
